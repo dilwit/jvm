@@ -1,27 +1,20 @@
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.List;
+
 public class OutOfMemory {
 
     private static final long  MEGABYTE = 1024L * 1024L;
+    private static List<Object> list = new ArrayList<>();
 
     public void trigger() {
 
-        getMemoryStatus();
+        List<String> inputArguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
+        System.out.println("Running with: " + inputArguments);
 
-        int dummyArraySize = 15;
-        long memoryConsumed = 0;
-
-        try {
-            long[] memoryAllocated = null;
-            for (int loop = 0; loop < Integer.MAX_VALUE; loop++) {
-
-                memoryAllocated = new long[dummyArraySize];
-                memoryConsumed += dummyArraySize * Long.BYTES;
-                System.out.println("Memory Consumed till now: " + bytesToMB(memoryConsumed) + " MB");
-                dummyArraySize *= dummyArraySize * 2;
-            }
-        } catch (OutOfMemoryError outofMemory) {
-            System.out.println("Catching out of memory error");
-            //Log the information,so that we can generate the statistics (latter on).
-            throw outofMemory;
+        while(true) {
+            getMemoryStatus();
+            list.add(new int[1_000_000]);
         }
     }
 
@@ -35,6 +28,8 @@ public class OutOfMemory {
 
         long freeMemory = Runtime.getRuntime().freeMemory();
         System.out.println("Free Memory: " + bytesToMB(freeMemory) + " MB");
+
+        System.out.println("=============================================");
     }
 
     private long bytesToMB(long bytes) {
